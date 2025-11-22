@@ -77,9 +77,8 @@ class CandleSimulator {
     const basePrice = startWP.price + (endWP.price - startWP.price) * progress;
     
     // Add volatility/noise
-    // Volatility should be proportional to the candle size? Or fixed?
-    // We can use a combination of volume, body size, top and bottom wick for the noise factor: "
-    // For now, let's use a simple noise factor relative to the price range
+    // We use a combination of volume, body size, top and bottom wick for the noise factor.
+    // For now, let's use a simple noise factor relative to the price range.
     const range = this.targetBar.h - this.targetBar.l;
     const noiseMagnitude = range * 0.1; // 10% of range as noise
     const noise = (Math.random() - 0.5) * noiseMagnitude;
@@ -232,7 +231,6 @@ export default function StockChart({ symbol }: StockChartProps) {
         if (!state.currentSimulator) {
             // Start new bar
             const targetBar = state.bars[state.currentBarIndex];
-            console.log('Starting bar:', targetBar);
             state.currentSimulator = new CandleSimulator(targetBar);
             simulationRef.current.elapsedBeforePause = 0;
             simulationRef.current.startTime = Date.now();
