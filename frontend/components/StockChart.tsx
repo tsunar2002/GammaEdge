@@ -78,7 +78,7 @@ class CandleSimulator {
     
     // Add volatility/noise
     // Volatility should be proportional to the candle size? Or fixed?
-    // User mentioned: "combination of volume, body size, top and bottom wick"
+    // We can use a combination of volume, body size, top and bottom wick for the noise factor: "
     // For now, let's use a simple noise factor relative to the price range
     const range = this.targetBar.h - this.targetBar.l;
     const noiseMagnitude = range * 0.1; // 10% of range as noise
@@ -103,6 +103,7 @@ export default function StockChart({ symbol }: StockChartProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
+  const [isFinished, setIsFinished] = useState(false);
   const [currentTime, setCurrentTime] = useState<string>('');
   const simulationRef = useRef<{
     startTime: number;
@@ -174,6 +175,7 @@ export default function StockChart({ symbol }: StockChartProps) {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
+      setIsFinished(false);
       try {
         const response = await fetch(`/api/stocks?symbol=${symbol}`);
         const data = await response.json();
@@ -207,17 +209,22 @@ export default function StockChart({ symbol }: StockChartProps) {
   }, [symbol]);
 
   useEffect(() => {
-    let animationFrameId: number;
-    let intervalId: NodeJS.Timeout;
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const stopSimulation = () => {
-      if (intervalId) clearInterval(intervalId);
+      if (simulationRef.current.intervalId) {
+        clearTimeout(simulationRef.current.intervalId);
+        simulationRef.current.intervalId = null;
+      }
+      if (timeoutId) clearTimeout(timeoutId);
     };
 
     const runSimulationStep = () => {
         const state = simulationState.current;
         if (state.currentBarIndex >= state.bars.length) {
             setIsPlaying(false);
+            setIsFinished(true);
             stopSimulation();
             return;
         }
@@ -257,74 +264,118 @@ export default function StockChart({ symbol }: StockChartProps) {
 
         let lastTickTime = Date.now();
 
-        intervalId = setInterval(() => {
-            const state = simulationState.current;
-            if (state.bars.length === 0) return;
+      const loop = () => {
+        if (!isMounted) return;
+        const state = simulationState.current;
 
-            const now = Date.now();
-            const delta = now - lastTickTime;
-            lastTickTime = now;
+        const now = Date.now();
+        if (state.bars.length === 0 || state.currentBarIndex >= state.bars.length) {
+            setIsPlaying(false);
+            setIsFinished(true);
+            stopSimulation();
+            return;
+        }
 
-            const effectiveDelta = delta * speed;
-            simulationRef.current.elapsedBeforePause += effectiveDelta;
-            const elapsed = simulationRef.current.elapsedBeforePause;
+        const delta = now - lastTickTime;
+        lastTickTime = now;
 
-            if (elapsed >= 60000) {
-                // Bar complete
-                const targetBar = state.bars[state.currentBarIndex];
-                seriesRef.current?.update({
-                    time: new Date(targetBar.t).getTime() / 1000 as Time,
-                    open: targetBar.o,
-                    high: targetBar.h,
-                    low: targetBar.l,
-                    close: targetBar.c
-                });
+        const effectiveDelta = delta * speed;
+        simulationRef.current.elapsedBeforePause += effectiveDelta;
+        const elapsed = simulationRef.current.elapsedBeforePause;
 
-                state.currentBarIndex++;
-                state.currentSimulator = null; // Reset for next bar
-                
-                if (state.currentBarIndex >= state.bars.length) {
-                    setIsPlaying(false);
-                    stopSimulation();
-                    return;
-                }
-                
-                // Start next bar immediately
-                runSimulationStep();
+        if (elapsed >= 60000) {
+            // Bar complete
+            const targetBar = state.bars[state.currentBarIndex];
+            seriesRef.current?.update({
+                time: new Date(targetBar.t).getTime() / 1000 as Time,
+                open: targetBar.o,
+                high: targetBar.h,
+                low: targetBar.l,
+                close: targetBar.c
+            });
 
-            } else {
-                if (state.currentSimulator && state.currentCandle) {
-                    const price = state.currentSimulator.getNextTick(elapsed);
-                    
-                    state.currentCandle.close = price;
-                    state.currentCandle.high = Math.max(state.currentCandle.high, price);
-                    state.currentCandle.low = Math.min(state.currentCandle.low, price);
-                    
-                    seriesRef.current?.update(state.currentCandle);
-                    setCurrentTime(new Date(state.bars[state.currentBarIndex].t).toLocaleString());
-                }
+            state.currentBarIndex++;
+            state.currentSimulator = null; // Reset for next bar
+            
+            if (state.currentBarIndex >= state.bars.length) {
+                setIsPlaying(false);
+                setIsFinished(true);
+                stopSimulation();
+                return;
             }
-        }, 50);
+            
+            // Start next bar immediately
+            runSimulationStep();
+            // The runSimulationStep will start its own loop/tick if needed, 
+            // but actually we are IN the loop.
+            // We should just continue the loop.
+            // But runSimulationStep initializes the new bar.
+            // Let's just schedule the next tick.
+            
+            // Actually, runSimulationStep calls update() for the OPEN of the new bar.
+            // We need to make sure we don't double-schedule.
+            // Let's refine runSimulationStep to NOT start the loop, just init state.
+            
+        } else {
+            if (state.currentSimulator && state.currentCandle) {
+                const price = state.currentSimulator.getNextTick(elapsed);
+                
+                state.currentCandle.close = price;
+                state.currentCandle.high = Math.max(state.currentCandle.high, price);
+                state.currentCandle.low = Math.min(state.currentCandle.low, price);
+                
+                seriesRef.current?.update(state.currentCandle);
+                setCurrentTime(new Date(state.bars[state.currentBarIndex].t).toLocaleString());
+            }
+        }
+
+        // Schedule next tick
+        // Random delay between 1000ms and 3000ms, adjusted by speed
+        const minDelay = 1000;
+        const maxDelay = 3000;
+        const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+        const adjustedDelay = randomDelay / speed;
+        
+        timeoutId = setTimeout(loop, adjustedDelay);
+        simulationRef.current.intervalId = timeoutId; // Store it to clear later
+      };
+
+      loop();
     }
 
     return () => {
+        isMounted = false;
         stopSimulation();
     };
   }, [isPlaying, speed, loading, error]);
+
+  const handlePlayToggle = () => {
+    if (isFinished) {
+        // Restart
+        simulationState.current.currentBarIndex = 0;
+        simulationState.current.currentSimulator = null;
+        simulationState.current.currentCandle = null;
+        seriesRef.current?.setData([]);
+        setIsFinished(false);
+        setIsPlaying(true);
+    } else {
+        setIsPlaying(!isPlaying);
+    }
+  };
 
   return (
     <div className="w-full h-full relative flex flex-col">
       <div className="flex justify-between items-center mb-4 p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
         <div className="flex items-center gap-4">
             <button
-                onClick={() => setIsPlaying(!isPlaying)}
+                onClick={handlePlayToggle}
                 className={`px-4 py-2 rounded font-bold ${isPlaying ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
             >
-                {isPlaying ? 'Pause' : 'Start Simulation'}
+                {isPlaying ? 'Pause' : isFinished ? 'Restart Simulation' : 'Start Simulation'}
             </button>
             <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Speed:</span>
-                {[1, 5, 10, 30, 60].map(s => (
+                {[1, 5, 10, 30, 60, 300].map(s => (
                     <button
                         key={s}
                         onClick={() => setSpeed(s)}
