@@ -24,7 +24,11 @@ function sanitizeInput(input: string): string {
   return input.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 10);
 }
 
-export default function StockSearch() {
+interface StockSearchProps {
+  onSelect?: (symbol: string) => void;
+}
+
+export default function StockSearch({ onSelect }: StockSearchProps) {
   const [symbol, setSymbol] = useState('');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<StockData | null>(null);
@@ -58,6 +62,9 @@ export default function StockSearch() {
       } else {
         setData(result);
         setError(null);
+        if (onSelect) {
+          onSelect(result.symbol);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch stock data');
