@@ -121,23 +121,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // For simulation mode, we ALWAYS use completed historical data
+  // Never use today's data as it's incomplete
+  // Start with yesterday and go back up to 7 days if needed
   
-  let endDate = new Date(today);
-  endDate.setHours(23, 59, 59, 999);
+  const yesterday = getDaysAgo(1);
+  yesterday.setHours(0, 0, 0, 0);
+  const yesterdayEnd = new Date(yesterday);
+  yesterdayEnd.setHours(23, 59, 59, 999);
   
-  let result = await fetchStockData(symbol, today, endDate);
+  let result = await fetchStockData(symbol, yesterday, yesterdayEnd);
 
-  if (!result.data && !result.error?.includes('credentials')) {
-    const yesterday = getDaysAgo(1);
-    yesterday.setHours(0, 0, 0, 0);
-    const yesterdayEnd = new Date(yesterday);
-    yesterdayEnd.setHours(23, 59, 59, 999);
-    
-    result = await fetchStockData(symbol, yesterday, yesterdayEnd);
-  }
-
+  // If yesterday has no data, try going back further (weekends, holidays)
   const maxDaysBack = 7;
   if (!result.data && !result.error?.includes('credentials')) {
     for (let daysBack = 2; daysBack <= maxDaysBack; daysBack++) {
