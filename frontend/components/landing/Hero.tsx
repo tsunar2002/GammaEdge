@@ -43,7 +43,7 @@ export const Hero = () => {
             </Button>
           </Link>
           <Link href="/sign-up">
-             <Button variant="outline" size="lg" className="rounded-full px-8 h-12 text-lg border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-black transition-all duration-300">
+             <Button variant="outline" size="lg" className="rounded-full px-8 h-12 text-lg border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-black hover:scale-105 transition-all duration-300">
               Create Account
             </Button>
           </Link>
