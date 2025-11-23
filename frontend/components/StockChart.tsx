@@ -5,6 +5,9 @@ import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickData, Time, C
 
 interface StockChartProps {
   symbol: string;
+  onPriceUpdate?: (price: number) => void;
+  onSimulationStart?: () => void;
+  onSimulationEnd?: () => void;
 }
 
 interface AlpacaBar {
@@ -94,7 +97,7 @@ class CandleSimulator {
   }
 }
 
-export default function StockChart({ symbol }: StockChartProps) {
+export default function StockChart({ symbol, onPriceUpdate, onSimulationStart, onSimulationEnd }: StockChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -324,6 +327,9 @@ export default function StockChart({ symbol }: StockChartProps) {
                 
                 seriesRef.current?.update(state.currentCandle);
                 setCurrentTime(new Date(state.bars[state.currentBarIndex].t).toLocaleString());
+                
+                // Emit current price for real-time option pricing
+                onPriceUpdate?.(price);
             }
         }
 
@@ -356,42 +362,77 @@ export default function StockChart({ symbol }: StockChartProps) {
         seriesRef.current?.setData([]);
         setIsFinished(false);
         setIsPlaying(true);
+        onSimulationStart?.(); // Notify parent
     } else {
+        const wasNotPlaying = !isPlaying;
         setIsPlaying(!isPlaying);
+        if (wasNotPlaying && simulationState.current.currentBarIndex === 0) {
+          onSimulationStart?.(); // Notify parent on first start
+        }
     }
   };
 
+  const hasStarted = isPlaying || isFinished || simulationState.current.currentBarIndex > 0;
+
   return (
     <div className="w-full h-full relative flex flex-col">
-      <div className="flex justify-between items-center mb-4 p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
-        <div className="flex items-center gap-4">
-            <button
-                onClick={handlePlayToggle}
-                className={`px-4 py-2 rounded font-bold ${isPlaying ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
-            >
-                {isPlaying ? 'Pause' : isFinished ? 'Restart Simulation' : 'Start Simulation'}
-            </button>
-            <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Speed:</span>
-                {[1, 5, 10, 30, 60, 300].map(s => (
-                    <button
-                        key={s}
-                        onClick={() => setSpeed(s)}
-                        className={`px-2 py-1 text-xs rounded ${speed === s ? 'bg-blue-600 text-white' : 'bg-gray-300 dark:bg-gray-700'}`}
-                    >
-                        {s}x
-                    </button>
-                ))}
-            </div>
+      {/* Simulation Controls - Only show when started */}
+      {hasStarted && (
+        <div className="flex justify-between items-center mb-4 p-2 bg-zinc-100 dark:bg-zinc-800 rounded">
+          <div className="flex items-center gap-4">
+              <button
+                  onClick={handlePlayToggle}
+                  className={`px-4 py-2 rounded font-bold ${isPlaying ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}
+              >
+                  {isPlaying ? 'Pause' : isFinished ? 'Restart Simulation' : 'Resume'}
+              </button>
+              <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Speed:</span>
+                  {[1, 5, 10, 30, 60, 300].map(s => (
+                      <button
+                          key={s}
+                          onClick={() => setSpeed(s)}
+                          className={`px-2 py-1 text-xs rounded ${speed === s ? 'bg-blue-600 text-white' : 'bg-gray-300 dark:bg-gray-700'}`}
+                      >
+                          {s}x
+                      </button>
+                  ))}
+              </div>
+          </div>
+          <div className="text-sm font-mono">
+              {currentTime}
+          </div>
         </div>
-        <div className="text-sm font-mono">
-            {currentTime}
-        </div>
-      </div>
+      )}
       
       <div className="relative flex-1 min-h-[500px]">
         {loading && <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 text-white">Loading...</div>}
         {error && <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 text-red-500">{error}</div>}
+        
+        {/* Start Simulation Overlay */}
+        {!hasStarted && !loading && !error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
+            <button
+              onClick={handlePlayToggle}
+              className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg transition-colors shadow-lg"
+            >
+              Start Simulation
+            </button>
+          </div>
+        )}
+
+        {/* Restart Simulation Overlay */}
+        {isFinished && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/90 z-10">
+            <button
+              onClick={handlePlayToggle}
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold rounded-lg transition-colors shadow-lg"
+            >
+              Restart Simulation
+            </button>
+          </div>
+        )}
+
         <div ref={chartContainerRef} className="w-full h-full" />
       </div>
     </div>
