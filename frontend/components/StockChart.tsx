@@ -6,6 +6,7 @@ import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickData, Time, C
 interface StockChartProps {
   symbol: string;
   onPriceUpdate?: (price: number) => void;
+  onTimeUpdate?: (date: Date) => void;
   onSimulationStart?: () => void;
   onSimulationEnd?: () => void;
 }
@@ -97,7 +98,7 @@ class CandleSimulator {
   }
 }
 
-export default function StockChart({ symbol, onPriceUpdate, onSimulationStart, onSimulationEnd }: StockChartProps) {
+export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimulationStart, onSimulationEnd }: StockChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -330,6 +331,11 @@ export default function StockChart({ symbol, onPriceUpdate, onSimulationStart, o
                 
                 // Emit current price for real-time option pricing
                 onPriceUpdate?.(price);
+                
+                // Emit current simulation time
+                if (state.currentCandle) {
+                  onTimeUpdate?.(new Date(state.currentCandle.time * 1000));
+                }
             }
         }
 

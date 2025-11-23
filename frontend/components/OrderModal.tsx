@@ -24,10 +24,13 @@ interface OrderModalProps {
   onClose: () => void;
 }
 
+import { usePortfolio } from '@/utils/PortfolioContext';
+
 export default function OrderModal({ option, symbol, currentPrice, expirationDate, volatility = 0.30, onClose }: OrderModalProps) {
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
   const [limitPrice, setLimitPrice] = useState(option.ask.toFixed(2));
   const [quantity, setQuantity] = useState(1);
+  const { executeOrder, buyingPower } = usePortfolio();
 
   // Update limit price when option.ask changes (live updates)
   useEffect(() => {
@@ -37,16 +40,30 @@ export default function OrderModal({ option, symbol, currentPrice, expirationDat
   }, [option.ask, orderType]);
 
   const handleSubmit = () => {
-    // TODO: Implement order submission in Phase 3
-    console.log('Order submitted:', {
+    const price = orderType === 'market' ? option.ask : parseFloat(limitPrice);
+    const totalCost = price * quantity * 100;
+
+    if (totalCost > buyingPower) {
+      alert('Insufficient buying power!');
+      return;
+    }
+
+    const success = executeOrder({
       symbol,
       strike: option.strike,
       type: option.type,
+      expirationDate, // Passed from props
+      side: 'buy',
       orderType,
-      price: orderType === 'market' ? option.ask : parseFloat(limitPrice),
       quantity,
+      price,
     });
-    onClose();
+
+    if (success) {
+      onClose();
+    } else {
+      alert('Failed to execute order');
+    }
   };
 
   const totalCost = (orderType === 'market' ? option.ask : parseFloat(limitPrice)) * quantity * 100;

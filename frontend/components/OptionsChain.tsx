@@ -29,13 +29,16 @@ interface OptionsChainData {
   chain: OptionChainItem[];
 }
 
+import { usePortfolio } from '@/utils/PortfolioContext';
+
 interface OptionsChainProps {
   symbol: string;
   currentPrice: number | null;
+  simulationDate: Date | null;
   isSimulationActive: boolean;
 }
 
-export default function OptionsChain({ symbol, currentPrice, isSimulationActive }: OptionsChainProps) {
+export default function OptionsChain({ symbol, currentPrice, simulationDate, isSimulationActive }: OptionsChainProps) {
   const [optionType, setOptionType] = useState<'call' | 'put'>('call');
   const [data, setData] = useState<OptionsChainData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -43,6 +46,8 @@ export default function OptionsChain({ symbol, currentPrice, isSimulationActive 
   const [selectedOption, setSelectedOption] = useState<OptionChainItem & { strike: number; type: 'call' | 'put' } | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const atmRef = useRef<HTMLDivElement>(null);
+  
+  const { updatePositions } = usePortfolio();
 
   // Fetch initial chain data only when simulation is active
   useEffect(() => {
@@ -72,14 +77,27 @@ export default function OptionsChain({ symbol, currentPrice, isSimulationActive 
     fetchOptionsChain();
   }, [symbol, optionType, isSimulationActive]);
 
+  // Update portfolio positions when price changes
+  useEffect(() => {
+    if (currentPrice && data && simulationDate) {
+      updatePositions(
+        currentPrice,
+        data.volatility / 100,
+        getCurrentRiskFreeRate(),
+        simulationDate
+      );
+    }
+  }, [currentPrice, data, simulationDate, updatePositions]);
+
   // Recalculate option prices when current price changes
   const liveChain = useMemo(() => {
     if (!data || !currentPrice) return data?.chain || [];
 
     // Recalculate prices with new stock price
-    const simulationDate = new Date(); // In real app, get from bar data
-    const expirationDate = getNextFriday(simulationDate);
-    const timeToExpiry = getSimulationTimeToExpiry(expirationDate, simulationDate);
+    // Use simulation date if available, otherwise fallback to now (though simulationDate should be available)
+    const simDate = simulationDate || new Date();
+    const expirationDate = getNextFriday(simDate);
+    const timeToExpiry = getSimulationTimeToExpiry(expirationDate, simDate);
     const riskFreeRate = getCurrentRiskFreeRate();
 
     return data.chain.map(option => {
@@ -117,7 +135,7 @@ export default function OptionsChain({ symbol, currentPrice, isSimulationActive 
         moneyness,
       };
     });
-  }, [data, currentPrice, optionType]);
+  }, [data, currentPrice, optionType, simulationDate]);
 
   // Scroll to ATM option when data loads or option type changes
   useEffect(() => {
