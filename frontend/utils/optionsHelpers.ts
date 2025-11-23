@@ -83,28 +83,20 @@ export function getNextFriday(fromDate: Date = new Date()): Date {
  */
 export function generateStrikePrices(
   currentPrice: number,
-  count: number = 10,
+  count: number = 5,  // Changed from 10 to 5
   interval?: number
 ): number[] {
   // Auto-calculate interval based on stock price if not provided
   let strikeInterval = interval;
   if (!strikeInterval) {
-    if (currentPrice < 20) {
-      strikeInterval = 0.5;
-    } else if (currentPrice < 50) {
-      strikeInterval = 1;
-    } else if (currentPrice < 100) {
-      strikeInterval = 2.5;
-    } else if (currentPrice < 200) {
-      strikeInterval = 5;
-    } else if (currentPrice < 500) {
-      strikeInterval = 10;
+    if (currentPrice < 120) {
+      strikeInterval = 1.0;
     } else {
-      strikeInterval = 25;
+      strikeInterval = 2.5;
     }
   }
   
-  // Round current price to nearest strike interval
+  // Round current price to nearest strike interval (no rounding, keep exact values)
   const atmStrike = Math.round(currentPrice / strikeInterval) * strikeInterval;
   
   const strikes: number[] = [];
@@ -122,10 +114,8 @@ export function generateStrikePrices(
     strikes.push(atmStrike + i * strikeInterval);
   }
   
-  // Filter out negative strikes and round to 2 decimal places
-  return strikes
-    .filter(strike => strike > 0)
-    .map(strike => Math.round(strike * 100) / 100);
+  // Filter out negative strikes (no rounding to preserve values like 272.5)
+  return strikes.filter(strike => strike > 0);
 }
 
 /**
