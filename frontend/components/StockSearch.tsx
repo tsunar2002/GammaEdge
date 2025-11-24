@@ -24,6 +24,8 @@ function sanitizeInput(input: string): string {
   return input.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 10);
 }
 
+import { Search } from 'lucide-react';
+
 interface StockSearchProps {
   onSelect?: (symbol: string) => void;
 }
@@ -81,14 +83,14 @@ export default function StockSearch({ onSelect }: StockSearchProps) {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <form onSubmit={handleSearch} className="flex gap-4">
+      <form onSubmit={handleSearch} className="flex items-center gap-4">
         <input
           id="symbol"
           type="text"
           value={symbol}
           onChange={handleInputChange}
-          placeholder="Enter stock symbol (e.g., AAPL, TSLA)"
-          className="flex-1 px-8 py-5 bg-white border border-gray-200 text-black placeholder:text-gray-400 focus:outline-none focus:border-black/30 focus:ring-2 focus:ring-black/5 transition-all text-lg rounded-2xl shadow-sm"
+          placeholder="Enter stock symbol (e.g., AAPL)"
+          className="w-full px-8 py-3 bg-white/5 border border-white/10 text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all text-lg rounded-full backdrop-blur-sm"
           disabled={loading}
           maxLength={10}
           pattern="[A-Z]{1,10}"
@@ -97,14 +99,14 @@ export default function StockSearch({ onSelect }: StockSearchProps) {
         <button
           type="submit"
           disabled={loading || !symbol.trim()}
-          className="px-10 py-5 bg-black text-white hover:bg-gray-800 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-all text-lg font-semibold rounded-2xl shadow-lg hover:shadow-xl"
+          className="px-10 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all rounded-full shadow-lg hover:shadow-blue-500/25 whitespace-nowrap"
         >
-          {loading ? 'Searching...' : 'Search'}
+          {loading ? '...' : 'Trade'}
         </button>
       </form>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-xl text-center backdrop-blur-sm">
           {error}
         </div>
       )}

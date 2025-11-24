@@ -4,6 +4,7 @@ import StockChart from "@/components/StockChart";
 import OptionsChain from "@/components/OptionsChain";
 import { useState } from "react";
 import { Header } from "@/components/landing/Header";
+import { Footer } from "@/components/landing/Footer";
 
 import { PortfolioProvider } from "@/utils/PortfolioContext";
 import PositionsPanel from "@/components/PositionsPanel";
@@ -25,61 +26,174 @@ function StockSearchWrapper() {
   const popularStocks = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'META', 'SPY'];
 
   if (!symbol) {
-    return (
-      <div className="min-h-screen bg-white text-black">
-        <Header />
-        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-6 relative overflow-hidden">
-          {/* Background Gradients */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-100/50 blur-[120px]" />
-            <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-100/50 blur-[120px]" />
-          </div>
+    const popularStocksData = [
+      { symbol: 'AAPL', change: '+1.2%', isPositive: true },
+      { symbol: 'MSFT', change: '-0.5%', isPositive: false },
+      { symbol: 'GOOGL', change: '+0.8%', isPositive: true },
+      { symbol: 'TSLA', change: '+1.2%', isPositive: true },
+      { symbol: 'AMZN', change: '-1.5%', isPositive: false },
+      { symbol: 'META', change: '-1.5%', isPositive: false },
+      { symbol: 'SPY', change: '+51%', isPositive: true },
+      { symbol: 'NVDA', change: '+2.4%', isPositive: true },
+      { symbol: 'AMD', change: '+1.8%', isPositive: true },
+      { symbol: 'NFLX', change: '-0.8%', isPositive: false },
+    ];
 
-          <div className="max-w-4xl w-full">
-            <div className="mb-12 text-center">
-              <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-black via-gray-800 to-gray-600 bg-clip-text text-transparent">
+    // Duplicate for infinite scroll
+    const marqueeStocks = [...popularStocksData, ...popularStocksData];
+
+    return (
+      <div className="min-h-screen bg-[#020420] text-white">
+        <Header />
+        
+        {/* Hero Section */}
+        <div className="relative min-h-[85vh] w-full overflow-hidden flex flex-col items-center justify-center pt-20 pb-10">
+          {/* Background - Dark Blue */}
+          <div className="absolute inset-0 bg-[#020420] z-0" />
+          
+          <div className="relative z-10 w-full flex flex-col items-center text-center">
+            <div className="max-w-5xl px-6 mb-8">
+              <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">
                 Start Trading
               </h1>
-              <p className="text-xl text-gray-500 mb-10">
+              <p className="text-lg text-gray-300 font-light drop-shadow-md">
                 Search for any stock to begin options trading simulation
               </p>
+            </div>
+            
+            <div className="w-full px-6 mb-12">
+              <StockSearch onSelect={(s) => setSymbol(s)} />
+            </div>
+
+            {/* Popular Stocks - Infinite Marquee (Full Width) */}
+            <div className="w-full overflow-hidden relative group mb-12">
+              <div className="max-w-7xl mx-auto px-6 mb-6">
+                <p className="text-xs text-gray-400 uppercase tracking-[0.2em] font-medium text-center">TRENDING ASSETS</p>
+              </div>
               
-              {/* Popular Stocks */}
-              <div className="mb-10">
-                <p className="text-sm text-gray-500 mb-4 uppercase tracking-wider font-medium">Popular Stocks</p>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {popularStocks.map((stock) => (
+              <div className="flex w-full overflow-hidden mask-image-linear-gradient">
+                <div className="flex gap-4 animate-scroll hover:pause whitespace-nowrap pl-4">
+                  {marqueeStocks.map((stock, index) => (
                     <button
-                      key={stock}
-                      onClick={() => setSymbol(stock)}
-                      className="px-6 py-3 bg-white hover:bg-gray-50 text-gray-800 hover:text-black text-sm font-semibold transition-all border border-gray-200 hover:border-gray-300 rounded-xl shadow-sm hover:shadow-md"
+                      key={`${stock.symbol}-${index}`}
+                      onClick={() => setSymbol(stock.symbol)}
+                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-sm transition-all hover:scale-105 ${
+                        stock.isPositive 
+                          ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20' 
+                          : 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20'
+                      }`}
                     >
-                      {stock}
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-white">{stock.symbol}</span>
+                        <span className={`text-xs font-medium ${stock.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                          {stock.change}
+                        </span>
+                        {stock.isPositive ? (
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                 <div className="flex gap-4 animate-scroll hover:pause whitespace-nowrap ml-4" aria-hidden="true">
+                  {marqueeStocks.map((stock, index) => (
+                    <button
+                      key={`dup-${stock.symbol}-${index}`}
+                      onClick={() => setSymbol(stock.symbol)}
+                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-sm transition-all hover:scale-105 ${
+                        stock.isPositive 
+                          ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20' 
+                          : 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-white">{stock.symbol}</span>
+                        <span className={`text-xs font-medium ${stock.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                          {stock.change}
+                        </span>
+                        {stock.isPositive ? (
+                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
+                          </svg>
+                        )}
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
+              
+              <style jsx>{`
+                @keyframes scroll {
+                  from { transform: translateX(0); }
+                  to { transform: translateX(-100%); }
+                }
+                .animate-scroll {
+                  animation: scroll 40s linear infinite;
+                }
+                .hover\\:pause:hover {
+                  animation-play-state: paused;
+                }
+              `}</style>
             </div>
-            
-            <StockSearch onSelect={(s) => setSymbol(s)} />
-            
-            {/* Feature Info */}
-            <div className="mt-16 grid grid-cols-3 gap-8 text-center">
-              <div className="p-6 bg-white/50 rounded-2xl border border-gray-100 backdrop-blur-sm shadow-sm">
-                <div className="text-3xl font-bold text-black mb-2">Real Data</div>
-                <div className="text-sm text-gray-500">Historical market data</div>
+          </div>
+        </div>
+
+        {/* Feature Cards - Overlapping */}
+        <div className="relative -mt-20 z-20 px-6 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Real Data */}
+              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
+                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">Real Data</h3>
+                <p className="text-gray-400 leading-relaxed">
+                  Access historical market data to test your strategies against real market conditions.
+                </p>
               </div>
-              <div className="p-6 bg-white/50 rounded-2xl border border-gray-100 backdrop-blur-sm shadow-sm">
-                <div className="text-3xl font-bold text-black mb-2">No Risk</div>
-                <div className="text-sm text-gray-500">Practice with paper money</div>
+
+              {/* No Risk */}
+              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
+                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">No Risk</h3>
+                <p className="text-gray-400 leading-relaxed">
+                  Practice trading with paper money. Learn from mistakes without losing real capital.
+                </p>
               </div>
-              <div className="p-6 bg-white/50 rounded-2xl border border-gray-100 backdrop-blur-sm shadow-sm">
-                <div className="text-3xl font-bold text-black mb-2">Live Greeks</div>
-                <div className="text-sm text-gray-500">Real-time calculations</div>
+
+              {/* Live Greeks */}
+              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
+                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 3.666A5.976 5.976 0 019 12.133m9-3v1.5m-9 3v3.75m3.75-3.75h3.75m-3.75 0V15m0-1.5h-.75m.75 0H15m0 0H9m0 0h-.75" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3">Live Greeks</h3>
+                <p className="text-gray-400 leading-relaxed">
+                  Real-time calculation of Delta, Gamma, Theta, and Vega for every option contract.
+                </p>
               </div>
             </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }

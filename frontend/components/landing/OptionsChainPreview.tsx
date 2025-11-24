@@ -13,7 +13,7 @@ const dummyOptionsData = [
 
 export const OptionsChainPreview = () => {
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-[#020420]">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.h2
@@ -21,7 +21,7 @@ export const OptionsChainPreview = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-bold text-black mb-4"
+            className="text-3xl md:text-4xl font-bold text-white mb-4"
           >
             Precision Pricing with Black-Scholes
           </motion.h2>
@@ -30,7 +30,7 @@ export const OptionsChainPreview = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-lg text-gray-500"
+            className="text-lg text-gray-400"
           >
             Options prices computed dynamically using the Black-Scholes model. Trade historical scenarios as if you were there.
           </motion.p>
@@ -41,17 +41,17 @@ export const OptionsChainPreview = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-5xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden"
+          className="max-w-5xl mx-auto bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-xl overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+          <div className="bg-white/5 px-6 py-4 border-b border-white/10">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-black">Options Chain</h3>
-                <p className="text-sm text-gray-500">Spot: $182.50 | Expiry: 30 DTE | IV: 24.5%</p>
+                <h3 className="text-xl font-bold text-white">Options Chain</h3>
+                <p className="text-sm text-gray-400">Spot: $182.50 | Expiry: 30 DTE | IV: 24.5%</p>
               </div>
               <div className="hidden md:flex items-center gap-2 text-xs text-gray-400">
-                <span className="px-3 py-1 bg-white rounded-full border border-gray-200">Black-Scholes</span>
+                <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Black-Scholes</span>
               </div>
             </div>
           </div>
@@ -60,13 +60,13 @@ export const OptionsChainPreview = () => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Call Bid</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Call Ask</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-900 uppercase tracking-wider font-bold">Strike</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Put Bid</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Put Ask</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Delta</th>
+                <tr className="bg-white/5 border-b border-white/10">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Call Bid</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Call Ask</th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider font-bold">Strike</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Put Bid</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Put Ask</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">Delta</th>
                 </tr>
               </thead>
               <tbody>
@@ -77,21 +77,21 @@ export const OptionsChainPreview = () => {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                      row.highlight ? "bg-blue-50/50" : ""
+                    className={`border-b border-white/5 hover:bg-white/5 transition-colors ${
+                      row.highlight ? "bg-blue-900/20" : ""
                     }`}
                   >
-                    <td className="px-4 py-4 text-sm font-medium text-green-600">${row.callBid.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-sm font-medium text-green-600">${row.callAsk.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-center text-base font-bold text-black">
+                    <td className="px-4 py-4 text-sm font-medium text-green-400">${row.callBid.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-sm font-medium text-green-400">${row.callAsk.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-center text-base font-bold text-white">
                       ${row.strike}
                       {row.highlight && (
                         <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-red-600">${row.putBid.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-red-600">${row.putAsk.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-right text-sm text-gray-600 hidden md:table-cell">{row.delta.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-right text-sm font-medium text-red-400">${row.putBid.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-right text-sm font-medium text-red-400">${row.putAsk.toFixed(2)}</td>
+                    <td className="px-4 py-4 text-right text-sm text-gray-400 hidden md:table-cell">{row.delta.toFixed(2)}</td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -99,8 +99,8 @@ export const OptionsChainPreview = () => {
           </div>
 
           {/* Footer Note */}
-          <div className="bg-gray-50 px-6 py-3 border-t border-gray-200">
-            <p className="text-xs text-gray-400 text-center">
+          <div className="bg-white/5 px-6 py-3 border-t border-white/10">
+            <p className="text-xs text-gray-500 text-center">
               Prices calculated using historical volatility and the Black-Scholes model. Greeks update as the simulation progresses.
             </p>
           </div>
@@ -119,10 +119,10 @@ export const OptionsChainPreview = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-              className="bg-white p-6 rounded-xl border border-gray-200 text-center"
+              className="bg-white/5 p-6 rounded-xl border border-white/10 text-center"
             >
-              <p className="text-sm text-gray-500 mb-2">{stat.label}</p>
-              <p className={`text-2xl font-bold text-${stat.color}-600`}>{stat.value}</p>
+              <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
+              <p className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</p>
             </motion.div>
           ))}
         </div>
