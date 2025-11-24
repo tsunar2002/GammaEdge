@@ -177,26 +177,26 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
 
   return (
     <>
-      <div className="h-full flex flex-col bg-zinc-900 rounded-lg border border-zinc-800">
+      <div className="h-full flex flex-col bg-[#0f0f0f]">
         {/* Header with Toggle */}
-        <div className="p-4 border-b border-zinc-800">
-          <div className="flex gap-2 mb-3">
+        <div className="px-4 py-3 border-b border-gray-800 shrink-0">
+          <div className="flex gap-1 mb-3">
             <button
               onClick={() => setOptionType('call')}
-              className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
+              className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wide transition-all ${
                 optionType === 'call'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400'
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-transparent text-gray-500 hover:text-gray-300'
               }`}
             >
               Calls
             </button>
             <button
               onClick={() => setOptionType('put')}
-              className={`flex-1 py-2 rounded-lg font-semibold text-sm transition-all ${
+              className={`flex-1 py-1.5 text-[10px] font-semibold uppercase tracking-wide transition-all ${
                 optionType === 'put'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-zinc-800 text-zinc-400'
+                  ? 'bg-gray-800 text-white'
+                  : 'bg-transparent text-gray-500 hover:text-gray-300'
               }`}
             >
               Puts
@@ -204,10 +204,10 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           </div>
           {data && (
             <div className="text-center">
-              <p className="text-xs text-zinc-500">
+              <p className="text-[10px] text-gray-500 uppercase tracking-wide">
                 Exp: {new Date(data.expirationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
               </p>
-              <p className="text-lg font-bold text-green-500 mt-1">
+              <p className="text-sm font-bold text-green-500 mt-1">
                 ${displayPrice?.toFixed(2)}
               </p>
             </div>
@@ -219,28 +219,28 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           {!isSimulationActive && (
             <div className="flex items-center justify-center py-12 px-4">
               <div className="text-center">
-                <div className="text-zinc-500 text-sm mb-2">Start simulation to view options</div>
-                <div className="text-zinc-600 text-xs">Click "Start Simulation" on the chart</div>
+                <div className="text-gray-600 text-xs mb-2">Start simulation to view options</div>
+                <div className="text-gray-700 text-[10px]">Click "Start Simulation" on the chart</div>
               </div>
             </div>
           )}
 
           {isSimulationActive && loading && (
             <div className="flex items-center justify-center py-12">
-              <div className="text-zinc-500 text-sm">Loading...</div>
+              <div className="text-gray-600 text-xs">Loading...</div>
             </div>
           )}
 
           {isSimulationActive && error && (
             <div className="p-4">
-              <div className="bg-red-950/20 border border-red-900/50 rounded-lg p-3">
-                <p className="text-red-400 text-xs">{error}</p>
+              <div className="bg-red-950/20 border border-red-900/50 p-3">
+                <p className="text-red-400 text-[10px]">{error}</p>
               </div>
             </div>
           )}
 
           {isSimulationActive && !loading && !error && data && (
-            <div className="divide-y divide-zinc-800">
+            <div>
               {sortedChain.map((option) => {
                 const isATM = option.moneyness === 'ATM';
                 
@@ -248,45 +248,37 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
                   <div
                     key={option.strike}
                     ref={isATM ? atmRef : null}
-                    className={`p-4 transition-colors ${
-                      isATM ? 'bg-zinc-800/50' : 'hover:bg-zinc-800/30'
+                    className={`px-4 py-2.5 transition-colors border-b border-gray-800 hover:bg-[#141414] ${
+                      isATM ? 'bg-[#141414]' : ''
                     }`}
                   >
-                    {/* Strike and Type */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg font-bold text-white">
-                        ${option.strike}
-                      </span>
-                      <span className="text-sm text-zinc-400 capitalize">
-                        {optionType}
-                      </span>
-                      {isATM && (
-                        <span className="ml-auto">
-                          <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
+                    {/* Strike and Price Row */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm font-bold text-white">
+                          ${option.strike}
                         </span>
-                      )}
-                    </div>
-
-                    {/* Price and Buy Button */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center justify-between bg-zinc-950/50 border border-orange-600/50 rounded-full px-4 py-2">
-                        <span className="text-orange-500 font-bold">
+                        <span className="text-[10px] text-gray-500 uppercase">
+                          {optionType}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-green-500">
                           ${option.ask.toFixed(2)}
                         </span>
                         <button
                           onClick={() => handleBuyClick(option)}
-                          className="bg-orange-600 hover:bg-orange-700 text-white rounded-full w-8 h-8 flex items-center justify-center transition-colors"
+                          className="bg-gray-800 hover:bg-gray-700 text-white w-6 h-6 flex items-center justify-center transition-colors text-xs"
                         >
-                          <span className="text-lg font-bold">+</span>
+                          +
                         </button>
                       </div>
                     </div>
 
-                    {/* Additional Info */}
-                    <div className="mt-2 text-xs text-zinc-500">
-                      Delta: {option.delta.toFixed(3)}
+                    {/* Greeks */}
+                    <div className="mt-1 text-[10px] text-gray-600">
+                      Δ{option.delta.toFixed(3)}
                     </div>
                   </div>
                 );
