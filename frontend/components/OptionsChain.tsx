@@ -36,9 +36,10 @@ interface OptionsChainProps {
   currentPrice: number | null;
   simulationDate: Date | null;
   isSimulationActive: boolean;
+  selectedDate: Date | null;
 }
 
-export default function OptionsChain({ symbol, currentPrice, simulationDate, isSimulationActive }: OptionsChainProps) {
+export default function OptionsChain({ symbol, currentPrice, simulationDate, isSimulationActive, selectedDate }: OptionsChainProps) {
   const [optionType, setOptionType] = useState<'call' | 'put'>('call');
   const [data, setData] = useState<OptionsChainData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,11 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
       setError(null);
 
       try {
-        const response = await fetch(`/api/options?symbol=${symbol}&type=${optionType}`);
+        let url = `/api/options?symbol=${symbol}&type=${optionType}`;
+        if (selectedDate) {
+            url += `&date=${selectedDate.toISOString().split('T')[0]}`;
+        }
+        const response = await fetch(url);
         
         if (!response.ok) {
           const errorData = await response.json();
@@ -75,7 +80,7 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
     };
 
     fetchOptionsChain();
-  }, [symbol, optionType, isSimulationActive]);
+  }, [symbol, optionType, isSimulationActive, selectedDate]);
 
   // Update portfolio positions when price changes
   useEffect(() => {

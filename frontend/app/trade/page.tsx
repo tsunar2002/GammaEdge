@@ -21,6 +21,7 @@ function StockSearchWrapper() {
   const [symbol, setSymbol] = useState<string | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [simulationDate, setSimulationDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
 
   const popularStocks = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'META', 'SPY'];
@@ -209,6 +210,7 @@ function StockSearchWrapper() {
               setIsSimulationActive(false);
               setCurrentPrice(null);
               setSimulationDate(null);
+              setSelectedDate(null);
             }}
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
@@ -241,6 +243,8 @@ function StockSearchWrapper() {
               onTimeUpdate={setSimulationDate}
               onSimulationStart={() => setIsSimulationActive(true)}
               onSimulationEnd={() => setIsSimulationActive(false)}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
             />
           </div>
         </div>
@@ -254,6 +258,7 @@ function StockSearchWrapper() {
               currentPrice={currentPrice}
               simulationDate={simulationDate}
               isSimulationActive={isSimulationActive}
+              selectedDate={selectedDate}
             />
           </div>
           
