@@ -22,13 +22,13 @@ export const Header = () => {
         <Link href="/" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
           Home
         </Link>
-        <Link href="#features" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
+        <Link href="/#features" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
           Features
         </Link>
         <Link href="/trade" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
           Trade
         </Link>
-        <Link href="#" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
+        <Link href="/about" className="text-sm font-medium transition-colors text-gray-300 hover:text-white">
           About
         </Link>
       </nav>
