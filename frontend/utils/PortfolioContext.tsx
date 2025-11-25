@@ -94,6 +94,8 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     return true;
   }, [state.buyingPower]);
 
+
+
   // Close a position
   const closePosition = useCallback((positionId: string, price: number, closedAt: Date) => {
     setState(prevState => {
@@ -204,6 +206,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         totalPnLPercent,
         totalValue,
       };
+
     });
   }, []);
 
