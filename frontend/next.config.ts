@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   // This fixes the "cannot find Next.js package" error when the app directory is nested.
   // The root points to the directory containing this config file.
   // Adjust if your project structure changes.
-  // @ts-ignore - optional property for Turbopack
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+
+
+
   turbopack: {
     root: __dirname,
   },

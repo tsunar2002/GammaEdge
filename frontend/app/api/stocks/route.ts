@@ -93,7 +93,7 @@ async function fetchStockData(
       data: marketHoursBars.length > 0 ? marketHoursBars : null,
       date: startDate,
     };
-  } catch (error) {
+  } catch {
     return {
       data: null,
       date: startDate,

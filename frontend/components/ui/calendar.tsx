@@ -12,7 +12,7 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>
 function CalendarFooter() {
     const { previousMonth, nextMonth, goToMonth } = useDayPicker();
     const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
-    const [currentDisplayMonth, setCurrentDisplayMonth] = React.useState(() => new Date());
+
     
     // Update current display month when navigation happens
     React.useEffect(() => {
@@ -58,7 +58,7 @@ function CalendarFooter() {
     const handlePreviousClick = () => {
         if (canGoPrevious() && previousMonth) {
             goToMonth(previousMonth);
-            setCurrentDisplayMonth(previousMonth);
+
             setErrorMessage(null);
         } else {
             setErrorMessage("Only 3 months of history allowed");
@@ -68,7 +68,7 @@ function CalendarFooter() {
     const handleNextClick = () => {
         if (canGoNext() && nextMonth) {
             goToMonth(nextMonth);
-            setCurrentDisplayMonth(nextMonth);
+
             setErrorMessage(null);
         } else {
             setErrorMessage("Cannot simulate future dates");

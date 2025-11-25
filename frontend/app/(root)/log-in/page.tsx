@@ -35,7 +35,7 @@ export default function LogInPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     // TODO: Implement authentication logic here
@@ -86,7 +86,7 @@ export default function LogInPage() {
       </Form>
 
       <div className="mt-6 text-center text-sm text-gray-500">
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/sign-up" className="font-semibold text-blue-600 hover:text-blue-500">
             Sign up
         </Link>

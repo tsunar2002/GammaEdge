@@ -11,9 +11,7 @@ import {
   calculatePutPrice,
   calculateDelta,
   calculateGamma,
-  calculateTheta,
   calculateVega,
-  calculateRho,
   priceOption,
 } from '../blackScholes';
 
