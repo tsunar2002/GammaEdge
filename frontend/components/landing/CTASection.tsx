@@ -9,11 +9,11 @@ export const CTASection = () => {
   // Start with static values to avoid hydration mismatch
   const [tradeCount, setTradeCount] = useState(12500);
   const [activeTraders, setActiveTraders] = useState(150);
-  const [isClient, setIsClient] = useState(false);
+
 
   useEffect(() => {
-    // Set random initial values on client mount
-    setIsClient(true);
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTradeCount(Math.floor(Math.random() * 5000) + 10000); // 10000-15000
     setActiveTraders(Math.floor(Math.random() * 100) + 100); // 100-200
 

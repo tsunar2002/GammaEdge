@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const symbol = searchParams.get('symbol');
   const optionType = searchParams.get('type') as 'call' | 'put' | null;
+  const date = searchParams.get('date');
 
   // Validate parameters
   if (!symbol) {
@@ -48,8 +49,13 @@ export async function GET(request: NextRequest) {
 
   try {
     // Fetch stock data
+    let stockApiUrl = `${request.nextUrl.origin}/api/stocks?symbol=${symbol}`;
+    if (date) {
+      stockApiUrl += `&date=${date}`;
+    }
+
     const stockResponse = await fetch(
-      `${request.nextUrl.origin}/api/stocks?symbol=${symbol}`,
+      stockApiUrl,
       { cache: 'no-store' }
     );
 

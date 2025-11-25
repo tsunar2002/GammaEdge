@@ -93,7 +93,7 @@ async function fetchStockData(
       data: marketHoursBars.length > 0 ? marketHoursBars : null,
       date: startDate,
     };
-  } catch (error) {
+  } catch {
     return {
       data: null,
       date: startDate,
@@ -105,6 +105,7 @@ async function fetchStockData(
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const rawSymbol = searchParams.get('symbol');
+  const dateParam = searchParams.get('date');
 
   if (!rawSymbol) {
     return NextResponse.json(
@@ -121,57 +122,105 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // For simulation mode, we ALWAYS use completed historical data
-  // Never use today's data as it's incomplete
-  // Start with yesterday and go back up to 7 days if needed
-  
-  const yesterday = getDaysAgo(1);
-  yesterday.setHours(0, 0, 0, 0);
-  const yesterdayEnd = new Date(yesterday);
-  yesterdayEnd.setHours(23, 59, 59, 999);
-  
-  let result = await fetchStockData(symbol, yesterday, yesterdayEnd);
+  let startDate: Date;
+  let endDate: Date;
 
-  // If yesterday has no data, try going back further (weekends, holidays)
-  const maxDaysBack = 7;
-  if (!result.data && !result.error?.includes('credentials')) {
-    for (let daysBack = 2; daysBack <= maxDaysBack; daysBack++) {
-      const targetDate = getDaysAgo(daysBack);
-      targetDate.setHours(0, 0, 0, 0);
-      const targetEnd = new Date(targetDate);
-      targetEnd.setHours(23, 59, 59, 999);
-      
-      result = await fetchStockData(symbol, targetDate, targetEnd);
-      
-      if (result.data) {
-        break;
-      }
+  if (dateParam) {
+    // User selected a specific date
+    const parsedDate = new Date(dateParam);
+    if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json(
+            { error: 'Invalid date format.' },
+            { status: 400 }
+        );
     }
-  }
+    
+    // Parse YYYY-MM-DD manually to avoid timezone issues and ensure we get the requested UTC date
+    const [year, month, day] = dateParam.split('-').map(Number);
+    startDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    endDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+    
+    const result = await fetchStockData(symbol, startDate, endDate);
+    
+    if (result.error && !result.data) {
+        return NextResponse.json(
+          { error: result.error },
+          { status: 500 }
+        );
+    }
 
-  if (result.error && !result.data) {
-    return NextResponse.json(
-      { error: result.error },
-      { status: 500 }
-    );
-  }
+    if (!result.data) {
+        return NextResponse.json(
+          { 
+            error: `No data available for ${symbol} on ${dateParam}.`,
+            bars: [],
+            symbol,
+            date: result.date.toISOString(),
+          },
+          { status: 200 } // Return 200 even if no data, so frontend can handle it gracefully
+        );
+    }
 
-  if (!result.data) {
-    return NextResponse.json(
-      { 
-        error: `No data available for ${symbol}.`,
-        bars: [],
+    return NextResponse.json({
+        bars: result.data,
         symbol,
         date: result.date.toISOString(),
-      },
-      { status: 200 }
-    );
-  }
+    });
 
-  return NextResponse.json({
-    bars: result.data,
-    symbol,
-    date: result.date.toISOString(),
-  });
+  } else {
+      // Default behavior: fetch yesterday or last available day
+      // For simulation mode, we ALWAYS use completed historical data
+      // Never use today's data as it's incomplete
+      // Start with yesterday and go back up to 7 days if needed
+      
+      const yesterday = getDaysAgo(1);
+      yesterday.setHours(0, 0, 0, 0);
+      const yesterdayEnd = new Date(yesterday);
+      yesterdayEnd.setHours(23, 59, 59, 999);
+      
+      let result = await fetchStockData(symbol, yesterday, yesterdayEnd);
+
+      // If yesterday has no data, try going back further (weekends, holidays)
+      const maxDaysBack = 7;
+      if (!result.data && !result.error?.includes('credentials')) {
+        for (let daysBack = 2; daysBack <= maxDaysBack; daysBack++) {
+          const targetDate = getDaysAgo(daysBack);
+          targetDate.setHours(0, 0, 0, 0);
+          const targetEnd = new Date(targetDate);
+          targetEnd.setHours(23, 59, 59, 999);
+          
+          result = await fetchStockData(symbol, targetDate, targetEnd);
+          
+          if (result.data) {
+            break;
+          }
+        }
+      }
+
+      if (result.error && !result.data) {
+        return NextResponse.json(
+          { error: result.error },
+          { status: 500 }
+        );
+      }
+
+      if (!result.data) {
+        return NextResponse.json(
+          { 
+            error: `No data available for ${symbol}.`,
+            bars: [],
+            symbol,
+            date: result.date.toISOString(),
+          },
+          { status: 200 }
+        );
+      }
+
+      return NextResponse.json({
+        bars: result.data,
+        symbol,
+        date: result.date.toISOString(),
+      });
+  }
 }
 

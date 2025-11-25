@@ -7,7 +7,7 @@ interface AuthLayoutProps {
   subtitle?: string;
 }
 
-export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="min-h-screen flex bg-white">
       {/* Left Column - Visual */}

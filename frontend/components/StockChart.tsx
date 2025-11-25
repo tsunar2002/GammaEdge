@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickData, Time, CandlestickSeries } from 'lightweight-charts';
+import { ColorType, createChart, IChartApi, ISeriesApi, CandlestickData, Time, CandlestickSeries } from 'lightweight-charts';
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface StockChartProps {
   symbol: string;
@@ -9,6 +15,8 @@ interface StockChartProps {
   onTimeUpdate?: (date: Date) => void;
   onSimulationStart?: () => void;
   onSimulationEnd?: () => void;
+  selectedDate: Date | null;
+  onDateSelect: (date: Date | null) => void;
 }
 
 interface AlpacaBar {
@@ -98,7 +106,15 @@ class CandleSimulator {
   }
 }
 
-export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimulationStart, onSimulationEnd }: StockChartProps) {
+export default function StockChart({ 
+  symbol, 
+  onPriceUpdate, 
+  onTimeUpdate, 
+  onSimulationStart, 
+
+  selectedDate,
+  onDateSelect
+}: StockChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -108,12 +124,23 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
   const [speed, setSpeed] = useState(1);
   const [isFinished, setIsFinished] = useState(false);
   const [currentTime, setCurrentTime] = useState<string>('');
+  
   const simulationRef = useRef<{
     startTime: number;
     pausedAt: number;
     elapsedBeforePause: number;
     intervalId: NodeJS.Timeout | null;
   }>({ startTime: 0, pausedAt: 0, elapsedBeforePause: 0, intervalId: null });
+
+  // Calculate date limits
+  const today = new Date();
+  
+  // For month navigation: fromDate should be first day of 3 months ago
+  const minDateObj = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+  
+  // toDate should be last day of current month to prevent navigating to future months
+  const maxDateObj = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -168,7 +195,7 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
     bars: AlpacaBar[];
     currentBarIndex: number;
     currentSimulator: CandleSimulator | null;
-    currentCandle: any;
+    currentCandle: CandlestickData | null;
   }>({
     bars: [],
     currentBarIndex: 0,
@@ -184,7 +211,11 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
       setError(null);
       setIsFinished(false);
       try {
-        const response = await fetch(`/api/stocks?symbol=${symbol}`);
+        let url = `/api/stocks?symbol=${symbol}`;
+        if (selectedDate) {
+            url += `&date=${selectedDate.toISOString().split('T')[0]}`;
+        }
+        const response = await fetch(url);
         const data = await response.json();
 
         if (!response.ok) {
@@ -213,7 +244,7 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
     };
 
     fetchData();
-  }, [symbol]);
+  }, [symbol, selectedDate]);
 
   useEffect(() => {
     let isMounted = true;
@@ -250,12 +281,10 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
                 high: targetBar.o,
                 low: targetBar.o,
                 close: targetBar.o
-            };
+            } as CandlestickData;
             seriesRef.current?.update(state.currentCandle);
         } else {
-            // Resume logic if needed, but mainly we just rely on elapsed time
-            // If we just resumed, we need to adjust startTime
-             // This is handled by the interval logic below
+            // Resume logic if needed
         }
     };
 
@@ -312,15 +341,6 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
             
             // Start next bar immediately
             runSimulationStep();
-            // The runSimulationStep will start its own loop/tick if needed, 
-            // but actually we are IN the loop.
-            // We should just continue the loop.
-            // But runSimulationStep initializes the new bar.
-            // Let's just schedule the next tick.
-            
-            // Actually, runSimulationStep calls update() for the OPEN of the new bar.
-            // We need to make sure we don't double-schedule.
-            // Let's refine runSimulationStep to NOT start the loop, just init state.
             
         } else {
             if (state.currentSimulator && state.currentCandle) {
@@ -338,13 +358,12 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
                 
                 // Emit current simulation time
                 if (state.currentCandle) {
-                  onTimeUpdate?.(new Date(state.currentCandle.time * 1000));
+                  onTimeUpdate?.(new Date((state.currentCandle.time as number) * 1000));
                 }
             }
         }
 
         // Schedule next tick
-        // Random delay between 1000ms and 3000ms, adjusted by speed
         const minDelay = 1000;
         const maxDelay = 3000;
         const randomDelay = Math.random() * (maxDelay - minDelay) + minDelay;
@@ -361,7 +380,7 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
         isMounted = false;
         stopSimulation();
     };
-  }, [isPlaying, speed, loading, error]);
+  }, [isPlaying, speed, loading, error, onPriceUpdate, onTimeUpdate]);
 
   const handlePlayToggle = () => {
     if (isFinished) {
@@ -432,10 +451,49 @@ export default function StockChart({ symbol, onPriceUpdate, onTimeUpdate, onSimu
         
         {/* Start Simulation Overlay */}
         {!hasStarted && !loading && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black z-10 gap-8">
+            <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+                <label className="text-zinc-400 text-sm font-medium">Select Trading Date (Optional)</label>
+                <div className="relative w-full">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-[#1E1E1E] border-[#2B2B2B] text-white hover:bg-[#2A2E39] hover:text-white",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-[#1E1E1E] border-[#2B2B2B] text-white" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate || undefined}
+                          onSelect={(date) => onDateSelect(date || null)}
+                          disabled={(date) => {
+                            const today = new Date();
+                            const threeMonthsAgo = new Date();
+                            threeMonthsAgo.setMonth(today.getMonth() - 3);
+                            return date > today || date < threeMonthsAgo;
+                          }}
+                          fromDate={minDateObj}
+                          toDate={maxDateObj}
+                          initialFocus
+                          className="bg-[#1E1E1E] text-white"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                </div>
+                <p className="text-xs text-zinc-500 text-center">
+                    Limit: Past 3 months. Leave empty for recent data.
+                </p>
+            </div>
             <button
               onClick={handlePlayToggle}
-              className="px-8 py-4 bg-[#2962FF] hover:bg-[#1E53E5] text-white text-xl font-bold rounded-lg transition-colors shadow-lg"
+              className="px-8 py-4 bg-[#2962FF] hover:bg-[#1E53E5] text-white text-xl font-bold rounded-lg transition-all shadow-lg hover:shadow-[#2962FF]/20 hover:scale-105 active:scale-95"
             >
               Start Simulation
             </button>

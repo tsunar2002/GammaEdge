@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 
-import { PortfolioProvider } from "@/utils/PortfolioContext";
+import { PortfolioProvider, usePortfolio } from "@/utils/PortfolioContext";
 import PositionsPanel from "@/components/PositionsPanel";
 
 export default function TradePage() {
@@ -21,9 +21,11 @@ function StockSearchWrapper() {
   const [symbol, setSymbol] = useState<string | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [simulationDate, setSimulationDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
+  const { resetPortfolio } = usePortfolio();
 
-  const popularStocks = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'META', 'SPY'];
+
 
   if (!symbol) {
     const popularStocksData = [
@@ -209,6 +211,8 @@ function StockSearchWrapper() {
               setIsSimulationActive(false);
               setCurrentPrice(null);
               setSimulationDate(null);
+              setSelectedDate(null);
+              resetPortfolio(); // Reset portfolio when backing out
             }}
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
@@ -241,6 +245,8 @@ function StockSearchWrapper() {
               onTimeUpdate={setSimulationDate}
               onSimulationStart={() => setIsSimulationActive(true)}
               onSimulationEnd={() => setIsSimulationActive(false)}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
             />
           </div>
         </div>
@@ -254,6 +260,7 @@ function StockSearchWrapper() {
               currentPrice={currentPrice}
               simulationDate={simulationDate}
               isSimulationActive={isSimulationActive}
+              selectedDate={selectedDate}
             />
           </div>
           

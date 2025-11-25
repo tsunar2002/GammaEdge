@@ -36,9 +36,10 @@ interface OptionsChainProps {
   currentPrice: number | null;
   simulationDate: Date | null;
   isSimulationActive: boolean;
+  selectedDate: Date | null;
 }
 
-export default function OptionsChain({ symbol, currentPrice, simulationDate, isSimulationActive }: OptionsChainProps) {
+export default function OptionsChain({ symbol, currentPrice, simulationDate, isSimulationActive, selectedDate }: OptionsChainProps) {
   const [optionType, setOptionType] = useState<'call' | 'put'>('call');
   const [data, setData] = useState<OptionsChainData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,11 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
       setError(null);
 
       try {
-        const response = await fetch(`/api/options?symbol=${symbol}&type=${optionType}`);
+        let url = `/api/options?symbol=${symbol}&type=${optionType}`;
+        if (selectedDate) {
+            url += `&date=${selectedDate.toISOString().split('T')[0]}`;
+        }
+        const response = await fetch(url);
         
         if (!response.ok) {
           const errorData = await response.json();
@@ -75,7 +80,7 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
     };
 
     fetchOptionsChain();
-  }, [symbol, optionType, isSimulationActive]);
+  }, [symbol, optionType, isSimulationActive, selectedDate]);
 
   // Update portfolio positions when price changes
   useEffect(() => {
@@ -219,8 +224,8 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           {!isSimulationActive && (
             <div className="flex items-center justify-center py-12 px-4">
               <div className="text-center">
-                <div className="text-gray-600 text-xs mb-2">Start simulation to view options</div>
-                <div className="text-gray-700 text-[10px]">Click "Start Simulation" on the chart</div>
+                <p className="text-zinc-400 mb-6">Select a stock symbol above to view the options chain and &quot;Greeks&quot;.</p>
+                <div className="text-gray-700 text-[10px]">Click &quot;Start Simulation&quot; on the chart</div>
               </div>
             </div>
           )}
@@ -298,7 +303,7 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           }}
           symbol={symbol}
           currentPrice={displayPrice || data.currentPrice}
-          expirationDate={data.expirationDate}
+          expirationDate={getNextFriday(simulationDate || new Date()).toISOString()}
           volatility={data.volatility / 100}
           onClose={() => setSelectedOption(null)}
         />

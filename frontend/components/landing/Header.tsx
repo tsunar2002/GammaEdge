@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 
 export const Header = () => {
@@ -35,11 +34,7 @@ export const Header = () => {
       </nav>
 
       <div className="flex items-center gap-4">
-        <Link href="/log-in">
-            <Button className="rounded-full px-6 transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 border-0 shadow-lg hover:shadow-blue-500/25">
-            Log in
-            </Button>
-        </Link>
+        {/* Auth removed as requested */}
       </div>
     </motion.header>
   );
