@@ -43,7 +43,7 @@ export default function SignUpPage() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     // TODO: Implement authentication logic here

@@ -1,9 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { priceOption } from '@/utils/blackScholes';
-import { getCurrentRiskFreeRate, getNextFriday } from '@/utils/optionsHelpers';
-import { getSimulationTimeToExpiry } from '@/utils/simulationContext';
+import { useState } from 'react';
 
 interface OrderModalProps {
   option: {
@@ -26,7 +23,7 @@ interface OrderModalProps {
 
 import { usePortfolio } from '@/utils/PortfolioContext';
 
-export default function OrderModal({ option, symbol, currentPrice, expirationDate, volatility = 0.30, onClose }: OrderModalProps) {
+export default function OrderModal({ option, symbol, currentPrice, expirationDate, onClose }: OrderModalProps) {
   const [quantity, setQuantity] = useState(1);
   const { executeOrder, buyingPower } = usePortfolio();
 

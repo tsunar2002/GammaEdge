@@ -224,8 +224,8 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           {!isSimulationActive && (
             <div className="flex items-center justify-center py-12 px-4">
               <div className="text-center">
-                <div className="text-gray-600 text-xs mb-2">Start simulation to view options</div>
-                <div className="text-gray-700 text-[10px]">Click "Start Simulation" on the chart</div>
+                <p className="text-zinc-400 mb-6">Select a stock symbol above to view the options chain and &quot;Greeks&quot;.</p>
+                <div className="text-gray-700 text-[10px]">Click &quot;Start Simulation&quot; on the chart</div>
               </div>
             </div>
           )}

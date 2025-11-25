@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { PortfolioContextType, PortfolioState, Position, Order, OrderType, OptionType, ClosedPosition } from './portfolioTypes';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { PortfolioContextType, PortfolioState, Order, ClosedPosition } from './portfolioTypes';
 import { priceOption } from './blackScholes';
 import { getSimulationTimeToExpiry } from './simulationContext';
 
@@ -42,7 +42,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
     setState(prevState => {
       let newBuyingPower = prevState.buyingPower;
-      let newPositions = [...prevState.positions];
+      const newPositions = [...prevState.positions];
 
       if (newOrder.side === 'buy') {
         newBuyingPower -= totalCost;
@@ -71,7 +71,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
             symbol: newOrder.symbol,
             strike: newOrder.strike,
             type: newOrder.type,
-            expirationDate: (orderParams as any).expirationDate || new Date().toISOString(),
+            expirationDate: (orderParams as Order).expirationDate || new Date().toISOString(),
             quantity: newOrder.quantity,
             avgEntryPrice: newOrder.price,
             currentPrice: newOrder.price,
@@ -158,7 +158,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       if (prevState.positions.length === 0) return prevState;
 
       let totalPositionValue = 0;
-      let currentTotalPnL = 0;
+
 
       const updatedPositions = prevState.positions.map(position => {
         // Recalculate option price
@@ -181,7 +181,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         const pnlPercent = (pnl / costBasis) * 100;
 
         totalPositionValue += marketValue;
-        currentTotalPnL += pnl;
+
 
         return {
           ...position,

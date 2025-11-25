@@ -111,7 +111,7 @@ export default function StockChart({
   onPriceUpdate, 
   onTimeUpdate, 
   onSimulationStart, 
-  onSimulationEnd,
+
   selectedDate,
   onDateSelect
 }: StockChartProps) {
@@ -134,14 +134,13 @@ export default function StockChart({
 
   // Calculate date limits
   const today = new Date();
-  const maxDate = today.toISOString().split('T')[0];
   
   // For month navigation: fromDate should be first day of 3 months ago
   const minDateObj = new Date(today.getFullYear(), today.getMonth() - 3, 1);
-  const minDate = minDateObj.toISOString().split('T')[0];
   
   // toDate should be last day of current month to prevent navigating to future months
   const maxDateObj = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -196,7 +195,7 @@ export default function StockChart({
     bars: AlpacaBar[];
     currentBarIndex: number;
     currentSimulator: CandleSimulator | null;
-    currentCandle: any;
+    currentCandle: CandlestickData | null;
   }>({
     bars: [],
     currentBarIndex: 0,
@@ -282,7 +281,7 @@ export default function StockChart({
                 high: targetBar.o,
                 low: targetBar.o,
                 close: targetBar.o
-            };
+            } as CandlestickData;
             seriesRef.current?.update(state.currentCandle);
         } else {
             // Resume logic if needed
@@ -359,7 +358,7 @@ export default function StockChart({
                 
                 // Emit current simulation time
                 if (state.currentCandle) {
-                  onTimeUpdate?.(new Date(state.currentCandle.time * 1000));
+                  onTimeUpdate?.(new Date((state.currentCandle.time as number) * 1000));
                 }
             }
         }

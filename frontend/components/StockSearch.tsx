@@ -24,7 +24,7 @@ function sanitizeInput(input: string): string {
   return input.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0, 10);
 }
 
-import { Search } from 'lucide-react';
+
 
 interface StockSearchProps {
   onSelect?: (symbol: string) => void;
@@ -33,7 +33,7 @@ interface StockSearchProps {
 export default function StockSearch({ onSelect }: StockSearchProps) {
   const [symbol, setSymbol] = useState('');
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<StockData | null>(null);
+
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -47,7 +47,7 @@ export default function StockSearch({ onSelect }: StockSearchProps) {
 
     setLoading(true);
     setError(null);
-    setData(null);
+
 
     try {
       const response = await fetch(`/api/stocks?symbol=${encodeURIComponent(sanitized)}`);
@@ -60,9 +60,9 @@ export default function StockSearch({ onSelect }: StockSearchProps) {
 
       if (result.error) {
         setError(result.error);
-        setData(null);
+
       } else {
-        setData(result);
+
         setError(null);
         if (onSelect) {
           onSelect(result.symbol);
@@ -70,7 +70,7 @@ export default function StockSearch({ onSelect }: StockSearchProps) {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch stock data');
-      setData(null);
+
     } finally {
       setLoading(false);
     }

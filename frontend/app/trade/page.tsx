@@ -25,7 +25,7 @@ function StockSearchWrapper() {
   const [isSimulationActive, setIsSimulationActive] = useState(false);
   const { resetPortfolio } = usePortfolio();
 
-  const popularStocks = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'META', 'SPY'];
+
 
   if (!symbol) {
     const popularStocksData = [
