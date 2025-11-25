@@ -303,7 +303,7 @@ export default function OptionsChain({ symbol, currentPrice, simulationDate, isS
           }}
           symbol={symbol}
           currentPrice={displayPrice || data.currentPrice}
-          expirationDate={data.expirationDate}
+          expirationDate={getNextFriday(simulationDate || new Date()).toISOString()}
           volatility={data.volatility / 100}
           onClose={() => setSelectedOption(null)}
         />

@@ -69,7 +69,7 @@ export default function PositionsPanel({ simulationDate }: PositionsPanelProps) 
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        {activeTab === 'positions' ? (
+        {activeTab === 'positions' && (
           positions.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-600 text-xs">
               No active positions
@@ -119,7 +119,11 @@ export default function PositionsPanel({ simulationDate }: PositionsPanelProps) 
               </tbody>
             </table>
           )
-        ) : (
+        )}
+        
+
+
+        {activeTab === 'history' && (
           history.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-600 text-xs">
               No trade history

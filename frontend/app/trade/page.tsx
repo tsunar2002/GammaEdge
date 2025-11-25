@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Header } from "@/components/landing/Header";
 import { Footer } from "@/components/landing/Footer";
 
-import { PortfolioProvider } from "@/utils/PortfolioContext";
+import { PortfolioProvider, usePortfolio } from "@/utils/PortfolioContext";
 import PositionsPanel from "@/components/PositionsPanel";
 
 export default function TradePage() {
@@ -23,6 +23,7 @@ function StockSearchWrapper() {
   const [simulationDate, setSimulationDate] = useState<Date | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isSimulationActive, setIsSimulationActive] = useState(false);
+  const { resetPortfolio } = usePortfolio();
 
   const popularStocks = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'AMZN', 'NVDA', 'META', 'SPY'];
 
@@ -211,6 +212,7 @@ function StockSearchWrapper() {
               setCurrentPrice(null);
               setSimulationDate(null);
               setSelectedDate(null);
+              resetPortfolio(); // Reset portfolio when backing out
             }}
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
