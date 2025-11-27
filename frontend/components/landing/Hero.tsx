@@ -41,11 +41,7 @@ export const Hero = () => {
               Start Free Simulation
             </Button>
           </Link>
-          <Link href="/sign-up">
-             <Button variant="outline" size="lg" className="rounded-full px-8 h-12 text-lg border-white/20 text-white bg-transparent hover:bg-white/10 hover:text-white hover:scale-105 transition-all duration-300">
-              See How It Works
-            </Button>
-          </Link>
+
         </motion.div>
 
         {/* Hero Image / Mockup */}

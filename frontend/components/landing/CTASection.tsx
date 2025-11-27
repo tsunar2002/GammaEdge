@@ -55,12 +55,7 @@ export const CTASection = () => {
               Join traders who are mastering options strategies without risking a single dollar.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <Link href="/sign-up">
-                <Button size="lg" className="rounded-full px-8 h-12 text-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-500 hover:to-purple-500 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-blue-500/25 border-0">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+
               <Link href="/trade">
                 <Button variant="outline" size="lg" className="rounded-full px-8 h-12 text-lg border-white/20 text-white bg-transparent hover:bg-white/10 hover:text-white transition-all duration-300">
                   Try Demo
