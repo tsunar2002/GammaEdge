@@ -28,8 +28,8 @@ async function fetchStockData(
   startDate: Date,
   endDate: Date
 ): Promise<{ data: AlpacaBar[] | null; date: Date; error?: string }> {
-  const apiKey = process.env.ALPACA_API_KEY?.trim();
-  const apiSecret = process.env.ALPACA_SECRET_KEY?.trim();
+  const apiKey = process.env.ALPACA_API_KEY?.trim().replace(/^["']|["']$/g, '');
+  const apiSecret = process.env.ALPACA_SECRET_KEY?.trim().replace(/^["']|["']$/g, '');
 
   if (!apiKey || !apiSecret) {
     return {
