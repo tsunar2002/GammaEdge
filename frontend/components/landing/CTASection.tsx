@@ -3,32 +3,23 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Zap, Users } from "lucide-react";
+import { ArrowRight, Activity, Zap, Users, ShieldAlert } from "lucide-react";
 
 export const CTASection = () => {
-  // Start with static values to avoid hydration mismatch
-  const [tradeCount, setTradeCount] = useState(12500);
-  const [activeTraders, setActiveTraders] = useState(150);
-
+  const [tradeCount, setTradeCount] = useState(14820);
+  const [activeTraders, setActiveTraders] = useState(185);
 
   useEffect(() => {
-
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTradeCount(Math.floor(Math.random() * 5000) + 10000); // 10000-15000
-    setActiveTraders(Math.floor(Math.random() * 100) + 100); // 100-200
-
-    // Simulate live trade counter
     const tradeInterval = setInterval(() => {
-      setTradeCount(prev => prev + Math.floor(Math.random() * 3) + 1);
-    }, 2000);
+      setTradeCount((prev) => prev + Math.floor(Math.random() * 3) + 1);
+    }, 2500);
 
-    // Simulate active traders fluctuation
     const tradersInterval = setInterval(() => {
-      setActiveTraders(prev => {
-        const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or +1
-        return Math.max(100, Math.min(250, prev + change)); // Keep between 100-250
+      setActiveTraders((prev) => {
+        const delta = Math.floor(Math.random() * 3) - 1;
+        return Math.max(120, Math.min(300, prev + delta));
       });
-    }, 3000);
+    }, 3500);
 
     return () => {
       clearInterval(tradeInterval);
@@ -37,97 +28,71 @@ export const CTASection = () => {
   }, []);
 
   return (
-    <section className="py-24 bg-[#020420] relative overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Main CTA */}
+    <section className="py-28 bg-[#050811] relative overflow-hidden">
+      {/* Background Ambient Glow */}
+      <div className="absolute inset-0 pointer-events-none -z-10">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-t from-cyan-500/10 to-transparent blur-3xl opacity-70" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-4xl mx-auto rounded-3xl p-10 sm:p-16 bg-gradient-to-b from-[#091122]/90 to-[#060a16] border border-cyan-500/20 shadow-[0_0_80px_rgba(0,0,0,0.8)] text-center backdrop-blur-xl">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-              Ready to build your edge?
-            </h2>
-            <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-              Join traders who are mastering options strategies without risking a single dollar.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+            <span className="text-xs font-mono font-bold text-cyan-400 uppercase tracking-widest px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6 inline-block">
+              Zero Capital Risk
+            </span>
 
+            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
+              Ready to Refine Your Intraday Edge?
+            </h2>
+
+            <p className="text-gray-300 text-lg mb-10 max-w-2xl mx-auto font-normal leading-relaxed">
+              Launch the simulator, select your target date, and experience live-feeling market action with historical data replays.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
               <Link href="/trade">
-                <Button variant="outline" size="lg" className="rounded-full px-8 h-12 text-lg border-white/20 text-white bg-transparent hover:bg-white/10 hover:text-white transition-all duration-300">
-                  Try Demo
+                <Button
+                  size="lg"
+                  className="rounded-full px-9 h-13 text-base font-bold bg-gradient-to-r from-cyan-500 to-emerald-500 text-[#040812] hover:from-cyan-400 hover:to-emerald-400 transition-all duration-300 shadow-[0_0_35px_rgba(0,242,254,0.35)] border-0 flex items-center gap-2 group"
+                >
+                  <span>Start Trading</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </div>
           </motion.div>
 
-          {/* Quick Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {[
-              {
-                icon: Users,
-                stat: activeTraders.toString(),
-                description: "Traders practicing now",
-                live: true,
-              },
-              {
-                icon: TrendingUp,
-                stat: "Unlimited",
-                description: "Paper trades & strategies",
-                live: false,
-              },
-              {
-                icon: Zap,
-                stat: tradeCount.toLocaleString(),
-                description: "Trades simulated today",
-                live: true,
-              },
-            ].map((item, index) => (
-              <motion.div
-                key={item.description}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-                className="text-center relative"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl mb-4 relative">
-                  <item.icon className="h-8 w-8 text-white" />
-                  {item.live && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                    </span>
-                  )}
-                </div>
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={item.stat}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-2xl font-bold text-white mb-2"
-                  >
-                    {item.stat}
-                  </motion.p>
-                </AnimatePresence>
-                <p className="text-sm text-gray-400">
-                  {item.description}
-                  {item.live && <span className="ml-1 text-green-500">●</span>}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
+          {/* Stats Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 border-t border-cyan-500/15 font-mono">
+            <div className="text-center p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span className="text-2xl font-bold text-white">{activeTraders}</span>
+              </div>
+              <span className="text-[11px] text-gray-400">Active Simulation Sessions</span>
+            </div>
+
+            <div className="text-center p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Zap className="w-4 h-4 text-emerald-400" />
+                <span className="text-2xl font-bold text-white">$100,000</span>
+              </div>
+              <span className="text-[11px] text-gray-400">Starting Paper Capital</span>
+            </div>
+
+            <div className="text-center p-4 rounded-xl bg-white/[0.02] border border-white/5">
+              <div className="flex items-center justify-center gap-2 mb-1">
+                <Activity className="w-4 h-4 text-purple-400" />
+                <span className="text-2xl font-bold text-white">{tradeCount.toLocaleString()}</span>
+              </div>
+              <span className="text-[11px] text-gray-400">Options Contracts Simulated</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

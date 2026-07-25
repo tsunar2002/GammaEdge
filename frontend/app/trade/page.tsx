@@ -45,21 +45,22 @@ function StockSearchWrapper() {
     const marqueeStocks = [...popularStocksData, ...popularStocksData];
 
     return (
-      <div className="min-h-screen bg-[#020420] text-white">
+      <div className="min-h-screen bg-[#050811] text-white">
         <Header />
         
         {/* Hero Section */}
-        <div className="relative min-h-[85vh] w-full overflow-hidden flex flex-col items-center justify-center pt-20 pb-10">
-          {/* Background - Dark Blue */}
-          <div className="absolute inset-0 bg-[#020420] z-0" />
+        <div className="relative min-h-[80vh] w-full overflow-hidden flex flex-col items-center justify-center pt-24 pb-10">
+          {/* Background - Obsidian Cyan */}
+          <div className="absolute inset-0 bg-[#050811] z-0" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none z-0" />
           
           <div className="relative z-10 w-full flex flex-col items-center text-center">
-            <div className="max-w-5xl px-6 mb-8">
-              <h1 className="text-5xl md:text-6xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">
-                Start Trading
+            <div className="max-w-4xl px-6 mb-8">
+              <h1 className="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight">
+                Select an Asset to <span className="text-cyan-400">Trade</span>
               </h1>
-              <p className="text-lg text-gray-300 font-light drop-shadow-md">
-                Search for any stock to begin options trading simulation
+              <p className="text-lg text-gray-300 font-normal">
+                Search any stock symbol below to initialize the historical options simulator
               </p>
             </div>
             
@@ -69,33 +70,33 @@ function StockSearchWrapper() {
 
             {/* Popular Stocks - Infinite Marquee (Full Width) */}
             <div className="w-full overflow-hidden relative group mb-12">
-              <div className="max-w-7xl mx-auto px-6 mb-6">
-                <p className="text-xs text-gray-400 uppercase tracking-[0.2em] font-medium text-center">TRENDING ASSETS</p>
+              <div className="max-w-7xl mx-auto px-6 mb-4">
+                <p className="text-xs font-mono text-cyan-400 uppercase tracking-widest font-semibold text-center">TRENDING ASSETS</p>
               </div>
               
-              <div className="flex w-full overflow-hidden mask-image-linear-gradient">
+              <div className="flex w-full overflow-hidden">
                 <div className="flex gap-4 animate-scroll hover:pause whitespace-nowrap pl-4">
                   {marqueeStocks.map((stock, index) => (
                     <button
                       key={`${stock.symbol}-${index}`}
                       onClick={() => setSymbol(stock.symbol)}
-                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-sm transition-all hover:scale-105 ${
+                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-md transition-all hover:scale-105 ${
                         stock.isPositive 
-                          ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20' 
-                          : 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20'
+                          ? 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20' 
+                          : 'bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="font-semibold text-white">{stock.symbol}</span>
-                        <span className={`text-xs font-medium ${stock.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        <span className={`text-xs font-mono font-medium ${stock.isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {stock.change}
                         </span>
                         {stock.isPositive ? (
-                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                           </svg>
                         ) : (
-                          <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                           </svg>
                         )}
@@ -108,23 +109,23 @@ function StockSearchWrapper() {
                     <button
                       key={`dup-${stock.symbol}-${index}`}
                       onClick={() => setSymbol(stock.symbol)}
-                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-sm transition-all hover:scale-105 ${
+                      className={`shrink-0 group/item relative px-6 py-2.5 rounded-full border backdrop-blur-md transition-all hover:scale-105 ${
                         stock.isPositive 
-                          ? 'bg-green-500/10 border-green-500/20 hover:bg-green-500/20' 
-                          : 'bg-red-500/10 border-red-500/20 hover:bg-red-500/20'
+                          ? 'bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20' 
+                          : 'bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className="font-semibold text-white">{stock.symbol}</span>
-                        <span className={`text-xs font-medium ${stock.isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                        <span className={`text-xs font-mono font-medium ${stock.isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                           {stock.change}
                         </span>
                         {stock.isPositive ? (
-                          <svg className="w-3 h-3 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                           </svg>
                         ) : (
-                          <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" />
                           </svg>
                         )}
@@ -150,46 +151,46 @@ function StockSearchWrapper() {
           </div>
         </div>
 
-        {/* Feature Cards - Overlapping */}
-        <div className="relative -mt-20 z-20 px-6 pb-20">
+        {/* Feature Cards */}
+        <div className="relative -mt-16 z-20 px-6 pb-20">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Real Data */}
-              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
-                <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-300">
+              <div className="bg-[#070c18] p-8 rounded-2xl border border-cyan-500/15 shadow-xl hover:border-cyan-500/30 transition-all group">
+                <div className="w-12 h-12 bg-cyan-500/10 rounded-xl flex items-center justify-center mb-6 text-cyan-400 group-hover:scale-110 transition-transform duration-300">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Real Data</h3>
-                <p className="text-gray-400 leading-relaxed">
-                  Access historical market data to test your strategies against real market conditions.
+                <h3 className="text-xl font-bold text-white mb-3">1-Min Intraday Bars</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Historical Alpaca data replay for realistic price action and volatility calculation.
                 </p>
               </div>
 
               {/* No Risk */}
-              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
-                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
+              <div className="bg-[#070c18] p-8 rounded-2xl border border-cyan-500/15 shadow-xl hover:border-cyan-500/30 transition-all group">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-6 text-emerald-400 group-hover:scale-110 transition-transform duration-300">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">No Risk</h3>
-                <p className="text-gray-400 leading-relaxed">
-                  Practice trading with paper money. Learn from mistakes without losing real capital.
+                <h3 className="text-xl font-bold text-white mb-3">Zero Risk Capital</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Practice with $100k starting paper cash. Refine entry timing without risking real money.
                 </p>
               </div>
 
               {/* Live Greeks */}
-              <div className="bg-white/5 p-8 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition-all group">
-                <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-6 text-indigo-400 group-hover:scale-110 transition-transform duration-300">
+              <div className="bg-[#070c18] p-8 rounded-2xl border border-cyan-500/15 shadow-xl hover:border-cyan-500/30 transition-all group">
+                <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-300">
                   <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 3.666A5.976 5.976 0 019 12.133m9-3v1.5m-9 3v3.75m3.75-3.75h3.75m-3.75 0V15m0-1.5h-.75m.75 0H15m0 0H9m0 0h-.75" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Live Greeks</h3>
-                <p className="text-gray-400 leading-relaxed">
-                  Real-time calculation of Delta, Gamma, Theta, and Vega for every option contract.
+                <h3 className="text-xl font-bold text-white mb-3">Black-Scholes Greeks</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  Real-time calculation of Delta, Gamma, Theta, and Vega for weekly call/put options.
                 </p>
               </div>
             </div>

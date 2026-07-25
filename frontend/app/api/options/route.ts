@@ -3,15 +3,7 @@ import { priceOption } from '@/utils/blackScholes';
 import { generateStrikePrices, getNextFriday, getCurrentRiskFreeRate } from '@/utils/optionsHelpers';
 import { estimateBlendedVolatility } from '@/utils/volatilityEstimator';
 import { getCurrentSimulationTime, getSimulationTimeToExpiry } from '@/utils/simulationContext';
-
-interface AlpacaBar {
-  t: string;
-  o: number;
-  h: number;
-  l: number;
-  c: number;
-  v: number;
-}
+import { getStockBars, AlpacaBar } from '../stocks/route';
 
 interface OptionChainItem {
   strike: number;
@@ -48,31 +40,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch stock data
-    let stockApiUrl = `${request.nextUrl.origin}/api/stocks?symbol=${symbol}`;
-    if (date) {
-      stockApiUrl += `&date=${date}`;
-    }
+    // Fetch stock data directly
+    const stockData = await getStockBars(symbol, date);
 
-    const stockResponse = await fetch(
-      stockApiUrl,
-      { cache: 'no-store' }
-    );
-
-    if (!stockResponse.ok) {
-      const errorData = await stockResponse.json();
+    if (stockData.error || !stockData.bars || stockData.bars.length === 0) {
       return NextResponse.json(
-        { error: errorData.error || 'Failed to fetch stock data' },
-        { status: stockResponse.status }
-      );
-    }
-
-    const stockData = await stockResponse.json();
-
-    if (!stockData.bars || stockData.bars.length === 0) {
-      return NextResponse.json(
-        { error: `No data available for ${symbol}` },
-        { status: 404 }
+        { error: stockData.error || `No data available for ${symbol}` },
+        { status: stockData.status || 404 }
       );
     }
 

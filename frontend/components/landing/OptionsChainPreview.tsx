@@ -1,130 +1,168 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { Calculator, ArrowUpRight, TrendingUp, CheckCircle2 } from "lucide-react";
 
 const dummyOptionsData = [
-  { strike: 170, callBid: 12.50, callAsk: 12.80, putBid: 0.15, putAsk: 0.20, delta: 0.85 },
-  { strike: 175, callBid: 8.20, callAsk: 8.50, putBid: 0.35, putAsk: 0.45, delta: 0.72 },
-  { strike: 180, callBid: 4.80, callAsk: 5.10, putBid: 0.80, putAsk: 0.95, delta: 0.58, highlight: true },
-  { strike: 185, callBid: 2.40, callAsk: 2.65, putBid: 1.85, putAsk: 2.05, delta: 0.42 },
-  { strike: 190, callBid: 1.05, callAsk: 1.20, putBid: 3.95, putAsk: 4.20, delta: 0.28 },
-  { strike: 195, callBid: 0.35, callAsk: 0.45, putBid: 7.50, putAsk: 7.85, delta: 0.15 },
+  { strike: 505, callBid: 9.80, callAsk: 10.05, putBid: 0.25, putAsk: 0.32, delta: 0.88, gamma: 0.015, theta: -0.12, vega: 0.18 },
+  { strike: 510, callBid: 5.60, callAsk: 5.85, putBid: 0.85, putAsk: 0.95, delta: 0.64, gamma: 0.028, theta: -0.22, vega: 0.32 },
+  { strike: 512.5, callBid: 3.90, callAsk: 4.10, putBid: 1.65, putAsk: 1.80, delta: 0.51, gamma: 0.034, theta: -0.28, vega: 0.38, highlight: true },
+  { strike: 515, callBid: 2.30, callAsk: 2.50, putBid: 3.10, putAsk: 3.30, delta: 0.38, gamma: 0.029, theta: -0.24, vega: 0.33 },
+  { strike: 520, callBid: 0.75, callAsk: 0.88, putBid: 7.40, putAsk: 7.75, delta: 0.16, gamma: 0.016, theta: -0.14, vega: 0.19 },
 ];
 
 export const OptionsChainPreview = () => {
+  const [selectedStrike, setSelectedStrike] = useState<number>(512.5);
+  const [optionType, setOptionType] = useState<"call" | "put">("call");
+
+  const activeRow = dummyOptionsData.find((r) => r.strike === selectedStrike) || dummyOptionsData[2];
+
   return (
-    <section className="py-24 bg-[#020420]">
+    <section id="pricing-demo" className="py-28 bg-[#03060d] relative border-t border-cyan-500/10">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-bold text-white mb-4"
-          >
-            Precision Pricing with Black-Scholes
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-lg text-gray-400"
-          >
-            Options prices computed dynamically using the Black-Scholes model. Trade historical scenarios as if you were there.
-          </motion.p>
+          <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4 inline-block">
+            Quantitative Pricing Model
+          </span>
+          <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4">
+            Live Black-Scholes Greeks.
+          </h2>
+          <p className="text-base md:text-lg text-gray-400">
+            Click any strike price below to inspect dynamic theoretical prices and real-time Greek sensitivities.
+          </p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-5xl mx-auto bg-[#0a0a0a] rounded-2xl border border-white/10 shadow-xl overflow-hidden"
-        >
-          {/* Header */}
-          <div className="bg-white/5 px-6 py-4 border-b border-white/10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-xl font-bold text-white">Options Chain</h3>
-                <p className="text-sm text-gray-400">Spot: $182.50 | Expiry: 30 DTE | IV: 24.5%</p>
-              </div>
-              <div className="hidden md:flex items-center gap-2 text-xs text-gray-400">
-                <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Black-Scholes</span>
-              </div>
+        <div className="max-w-5xl mx-auto bg-[#070c18] rounded-2xl border border-cyan-500/20 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden">
+          {/* Header Bar */}
+          <div className="bg-[#091122] px-6 py-4 border-b border-cyan-500/15 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <span>SPY Weekly Contracts</span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                  EXP: THIS FRIDAY
+                </span>
+              </h3>
+              <p className="text-xs font-mono text-gray-400 mt-0.5">Spot Price: $512.40 | Risk-Free Rate: 5.25% | Volatility: 18.6%</p>
+            </div>
+
+            <div className="flex items-center gap-2 bg-[#050811] p-1 rounded-lg border border-white/10">
+              <button
+                onClick={() => setOptionType("call")}
+                className={`px-4 py-1.5 rounded text-xs font-bold font-mono transition-all ${
+                  optionType === "call" ? "bg-emerald-500 text-black shadow" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                CALLS
+              </button>
+              <button
+                onClick={() => setOptionType("put")}
+                className={`px-4 py-1.5 rounded text-xs font-bold font-mono transition-all ${
+                  optionType === "put" ? "bg-rose-500 text-white shadow" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                PUTS
+              </button>
             </div>
           </div>
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-left font-mono">
               <thead>
-                <tr className="bg-white/5 border-b border-white/10">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Call Bid</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Call Ask</th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider font-bold">Strike</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Put Bid</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">Put Ask</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">Delta</th>
+                <tr className="bg-[#050914] text-[11px] text-gray-400 uppercase border-b border-white/5">
+                  <th className="px-6 py-3 font-semibold">Strike</th>
+                  <th className="px-6 py-3 font-semibold">Type</th>
+                  <th className="px-6 py-3 font-semibold">Bid / Ask</th>
+                  <th className="px-6 py-3 font-semibold text-center">Delta (Δ)</th>
+                  <th className="px-6 py-3 font-semibold text-center">Gamma (Γ)</th>
+                  <th className="px-6 py-3 font-semibold text-center">Theta (Θ)</th>
+                  <th className="px-6 py-3 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
-                {dummyOptionsData.map((row, index) => (
-                  <motion.tr
-                    key={row.strike}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className={`border-b border-white/5 hover:bg-white/5 transition-colors ${
-                      row.highlight ? "bg-blue-900/20" : ""
-                    }`}
-                  >
-                    <td className="px-4 py-4 text-sm font-medium text-green-400">${row.callBid.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-sm font-medium text-green-400">${row.callAsk.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-center text-base font-bold text-white">
-                      ${row.strike}
-                      {row.highlight && (
-                        <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-red-400">${row.putBid.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-right text-sm font-medium text-red-400">${row.putAsk.toFixed(2)}</td>
-                    <td className="px-4 py-4 text-right text-sm text-gray-400 hidden md:table-cell">{row.delta.toFixed(2)}</td>
-                  </motion.tr>
-                ))}
+              <tbody className="divide-y divide-white/5 text-sm">
+                {dummyOptionsData.map((row) => {
+                  const isSelected = selectedStrike === row.strike;
+                  const bid = optionType === "call" ? row.callBid : row.putBid;
+                  const ask = optionType === "call" ? row.callAsk : row.putAsk;
+                  const formattedDelta = optionType === "call" ? row.delta : (row.delta - 1);
+
+                  return (
+                    <tr
+                      key={row.strike}
+                      onClick={() => setSelectedStrike(row.strike)}
+                      className={`cursor-pointer transition-colors ${
+                        isSelected ? "bg-cyan-500/10" : "hover:bg-white/[0.03]"
+                      }`}
+                    >
+                      <td className="px-6 py-4 font-bold text-white">
+                        ${row.strike.toFixed(2)}
+                        {row.highlight && (
+                          <span className="ml-2 px-1.5 py-0.5 rounded text-[9px] bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                            ATM
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 uppercase text-xs font-semibold">
+                        <span className={optionType === "call" ? "text-emerald-400" : "text-rose-400"}>
+                          {optionType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-medium text-white">
+                        ${bid.toFixed(2)} / ${ask.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-center text-cyan-400 font-bold">
+                        {formattedDelta.toFixed(3)}
+                      </td>
+                      <td className="px-6 py-4 text-center text-purple-400">
+                        {row.gamma.toFixed(3)}
+                      </td>
+                      <td className="px-6 py-4 text-center text-rose-400">
+                        {row.theta.toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button className="px-3 py-1 rounded text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500 hover:text-black transition-all">
+                          Inspect →
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          {/* Footer Note */}
-          <div className="bg-white/5 px-6 py-3 border-t border-white/10">
-            <p className="text-xs text-gray-500 text-center">
-              Prices calculated using historical volatility and the Black-Scholes model. Greeks update as the simulation progresses.
-            </p>
-          </div>
-        </motion.div>
+          {/* Selected Strike Inspector */}
+          <div className="bg-[#050914] p-6 border-t border-cyan-500/15">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <span className="text-xs font-mono text-gray-400 uppercase">
+                Active Selection: <strong className="text-white font-bold">${selectedStrike} {optionType.toUpperCase()}</strong>
+              </span>
+              <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Black-Scholes Model Verified
+              </span>
+            </div>
 
-        {/* Additional Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
-          {[
-            { label: "Greeks Analysis", value: "Δ Γ Θ Ꝟ", color: "blue" },
-            { label: "Implied Volatility", value: "24.5%", color: "purple" },
-            { label: "Open Interest", value: "12.4K", color: "green" },
-          ].map((stat, index) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-              className="bg-white/5 p-6 rounded-xl border border-white/10 text-center"
-            >
-              <p className="text-sm text-gray-400 mb-2">{stat.label}</p>
-              <p className={`text-2xl font-bold text-${stat.color}-400`}>{stat.value}</p>
-            </motion.div>
-          ))}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center font-mono">
+              <div className="p-3 rounded-lg bg-[#070c18] border border-white/5">
+                <span className="text-[10px] text-gray-500 uppercase block">Delta (Δ)</span>
+                <span className="text-base font-bold text-cyan-400">
+                  {(optionType === "call" ? activeRow.delta : activeRow.delta - 1).toFixed(4)}
+                </span>
+              </div>
+              <div className="p-3 rounded-lg bg-[#070c18] border border-white/5">
+                <span className="text-[10px] text-gray-500 uppercase block">Gamma (Γ)</span>
+                <span className="text-base font-bold text-purple-400">{activeRow.gamma.toFixed(4)}</span>
+              </div>
+              <div className="p-3 rounded-lg bg-[#070c18] border border-white/5">
+                <span className="text-[10px] text-gray-500 uppercase block">Theta (Θ) / Day</span>
+                <span className="text-base font-bold text-rose-400">${activeRow.theta.toFixed(2)}</span>
+              </div>
+              <div className="p-3 rounded-lg bg-[#070c18] border border-white/5">
+                <span className="text-[10px] text-gray-500 uppercase block">Vega (Ꝟ) / 1% IV</span>
+                <span className="text-base font-bold text-amber-400">${activeRow.vega.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
