@@ -28,9 +28,6 @@ async function fetchStockData(
   startDate: Date,
   endDate: Date
 ): Promise<{ data: AlpacaBar[] | null; date: Date; error?: string }> {
-  const isProduction = process.env.NEXT_PUBLIC_ALPACA_ENV === 'production';
-  const baseUrl = 'https://data.alpaca.markets/v2/stocks/bars';
-
   const apiKey = process.env.ALPACA_API_KEY?.trim();
   const apiSecret = process.env.ALPACA_SECRET_KEY?.trim();
 
@@ -42,35 +39,47 @@ async function fetchStockData(
     };
   }
 
-  const feed = isProduction ? 'sip' : 'iex';
+  const baseUrl = 'https://data.alpaca.markets/v2/stocks/bars';
+  const isPaperKey = apiKey.startsWith('PK');
+  const isProductionEnv = process.env.NEXT_PUBLIC_ALPACA_ENV === 'production';
+  const initialFeed = (!isPaperKey && isProductionEnv) ? 'sip' : 'iex';
 
-  const params = new URLSearchParams({
-    symbols: symbol,
-    timeframe: '1min',
-    start: formatDateForAPI(startDate),
-    end: formatDateForAPI(endDate),
-    limit: '1000',
-    adjustment: 'raw',
-    feed,
-    sort: 'asc',
-  });
+  const makeRequest = async (feedType: string) => {
+    const params = new URLSearchParams({
+      symbols: symbol,
+      timeframe: '1min',
+      start: formatDateForAPI(startDate),
+      end: formatDateForAPI(endDate),
+      limit: '1000',
+      adjustment: 'raw',
+      feed: feedType,
+      sort: 'asc',
+    });
 
-  try {
-    const response = await fetch(`${baseUrl}?${params.toString()}`, {
+    return fetch(`${baseUrl}?${params.toString()}`, {
       method: 'GET',
       headers: {
         'APCA-API-KEY-ID': apiKey,
         'APCA-API-SECRET-KEY': apiSecret,
       },
     });
+  };
+
+  try {
+    let response = await makeRequest(initialFeed);
+
+    // Fallback: If SIP feed fails with 401 or 403, fallback to IEX feed (standard for paper trading accounts)
+    if (!response.ok && (response.status === 401 || response.status === 403) && initialFeed === 'sip') {
+      response = await makeRequest('iex');
+    }
 
     if (!response.ok) {
       let errorMessage = 'Failed to fetch stock data.';
       
       if (response.status === 401) {
-        errorMessage = 'Authentication failed.';
+        errorMessage = 'Authentication failed. Please verify ALPACA_API_KEY and ALPACA_SECRET_KEY in production environment variables.';
       } else if (response.status === 403) {
-        errorMessage = 'Access denied.';
+        errorMessage = 'Access denied by data provider.';
       } else if (response.status === 429) {
         errorMessage = 'Rate limit exceeded. Please try again later.';
       } else if (response.status >= 500) {
